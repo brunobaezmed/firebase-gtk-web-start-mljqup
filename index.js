@@ -64,6 +64,16 @@ async function main() {
 
 //Listen RSVP events click
   startRsvpButton.addEventListener("click", () => {
+    if(auth.currentUser){
+      //User is signed in; allows to sign out
+      signOut(auth);
+      }
+    else {
+      ui.start('#firebaseui-auth-container', uiConfig);
+
+      }
+    
+    
     ui.start("#firebaseui-auth-container",uiConfig);
     }); 
 
