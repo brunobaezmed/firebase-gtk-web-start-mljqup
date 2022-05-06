@@ -7,7 +7,7 @@ import { initializeApp } from 'firebase/app';
 
 import { 
   getAuth, EmailAuthProvider,signOut,onAuthStateChanged } from 'firebase/auth';
-import {} from 'firebase/firestore';
+import { getFirestore,addDoc,collection} from 'firebase/firestore';
 import * as firebaseui from 'firebaseui';
 
 // Document elements
@@ -42,7 +42,7 @@ async function main() {
 
   initializeApp(firebaseConfig);
   auth = getAuth();
-
+  db = getFirestore();
 
 
 
@@ -85,14 +85,39 @@ onAuthStateChanged(auth,user =>{
 
   if(user) {
     startRsvpButton.textContent = 'LOGOUT';
+    //Show guestbook to only logged in users
+    guestbookContainer.style.display = 'block';
+
     }
   else {
     startRsvpButton.textContent = 'RSVP';
+    //hide guestbook to non-logged-in users
+    guestbookContainer.style.display = 'none';
     }
 
 
 
   });
+
+
+  //Listen to the form submission
+  form.addEventListener('submit', async e =>{
+    //prevent default
+    e.preventDefault();
+    //write a new message to the database collection guestbook
+    addDoc(collection(db,'guestbook'),{
+      text: input.value,
+      timestamp: Date.now(),
+      name: auth.currentUser.displayName,
+      userID: auth.currentUser.uid
+    });
+
+    //clear message input field after
+    input.value = '';
+    //return false to avoid redirect
+    return false;
+  });
+
 
 
 }
