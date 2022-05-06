@@ -7,7 +7,8 @@ import { initializeApp } from 'firebase/app';
 
 import { 
   getAuth, EmailAuthProvider,signOut,onAuthStateChanged } from 'firebase/auth';
-import { getFirestore,addDoc,collection} from 'firebase/firestore';
+import { getFirestore,addDoc,collection,query,orderBy
+,onSnapshot} from 'firebase/firestore';
 import * as firebaseui from 'firebaseui';
 
 // Document elements
@@ -87,12 +88,17 @@ onAuthStateChanged(auth,user =>{
     startRsvpButton.textContent = 'LOGOUT';
     //Show guestbook to only logged in users
     guestbookContainer.style.display = 'block';
+    //subscribe to guestbook collection
+    subscribeGuestbook();
+
 
     }
   else {
     startRsvpButton.textContent = 'RSVP';
     //hide guestbook to non-logged-in users
     guestbookContainer.style.display = 'none';
+    //unsub from the guestbook collection
+    unsubscribeGuestbook();
     }
 
 
@@ -119,6 +125,44 @@ onAuthStateChanged(auth,user =>{
   });
 
 
+  
+
 
 }
+
+//Listen to guestbook updates
+function subscribeGuestbook(){
+  //create a query for messages
+  const q = query(collection(db,'guestbook'), orderBy('timestamp','desc'));
+
+  onSnapshot(q, snaps => {
+    //reset page
+    guestbook.innerHTML = '';
+
+    //Loop through documents in database
+    snaps.forEach(doc => {
+
+      //Create an HTML entry for each document and add it to the chat
+      const entry = document.createElement('p');
+      entry.textContent = doc.data().name + ': ' + doc.data().text;
+      guestbook.appendChild(entry);
+    });
+
+
+
+  });
+
+}
+
+
+//Unsubscribe from guestbook updates
+function unsubscribeGuestbook(){
+
+  if(guestbookListener != null) {
+    guestbookListener();
+    guestbookListener = null;
+  } 
+}
+
+
 main();
