@@ -41,6 +41,10 @@ async function main() {
 
   initializeApp(firebaseConfig);
   auth = getAuth();
+
+
+
+
   // FirebaseUI config
   const uiConfig = {
     credentialHelper: firebaseui.auth.CredentialHelper.NONE,
@@ -56,6 +60,12 @@ async function main() {
       },
     },
   };
+
+
+  startRsvpButton.addEventListener("click", () => {
+    ui.start("#firebaseui-auth-container",uiConfig);
+    }); 
+
 
   const ui = new firebaseui.auth.AuthUI(auth);
 }
